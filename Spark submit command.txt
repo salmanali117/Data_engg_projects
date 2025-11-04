@@ -1,5 +1,0 @@
-Depends on your version of Kafka and Scala. If it gives you error, you might be needing another similar package with changed version numbers for your scala, kafka or spark
-
-Change the file location as needed
-
-spark-submit --repositories https://repo.maven.apache.org/maven2 --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.5 --master local[*] C:\Users\pc\crypto-etl-project\spark_streaming
