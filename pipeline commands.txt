@@ -1,0 +1,15 @@
+#Commands to run the pipeline
+
+bin\windows\zookeeper-server-start.bat config\zookeeper.properties
+
+bin\windows\kafka-server-start.bat config\server.properties
+
+bin\windows\kafka-topics.bat --create --topic crypto-prices --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
+
+bin\windows\kafka-console-consumer.bat --topic crypto-prices --bootstrap-server localhost:9092 --from-beginning
+
+spark-submit --repositories https://repo.maven.apache.org/maven2 --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.5 --master local[*] C:\Users\pc\Desktop\WORKSPACES\Marketflow-Analysis\spark_streaming\kafka_streaming.py
+
+spark-submit --jars postgresql-42.7.5.jar analytics.py
+
+psql -h localhost -p 5432 -U postgres -d crypto_metrics
