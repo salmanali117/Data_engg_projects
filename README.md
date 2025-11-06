@@ -1,4 +1,4 @@
-# Data_engg_project_AWS
+# Data_engg_project Real Time Streaming
 Designing and Implementing pipelines using AWS platforms.
 
 ## Overview
@@ -8,43 +8,54 @@ It continuously fetches price data from the CoinGecko API, streams it via Kafka,
 
 ## Architecture:
 CoinGecko API → Kafka Producer → Kafka Topic → PySpark Consumer → DataFrames (Parquet)
-           ↓                                                ↓
+                                                           ↓
      PostgreSQL (Analytics Tables) ← Spark Transformations (SMA, EMA, Volatility)
 
 
-## Step by Step procedure:
-* The pipeline pulls live cryptocurrency prices from the CoinGecko API every 30 seconds.
+## Step by Step workflow:
 
-The Python script fetches popular coins (like Bitcoin, Ethereum, etc.) and filters only useful details like price, volume, market cap, highs/lows, and timestamp.
+### Data Ingestion (Producer Layer)
 
-Each batch of data is packaged into a JSON message and sent to a Kafka topic named crypto-prices, which acts like a real-time mailbox for incoming data.
+* A Python script continuously fetches live cryptocurrency data from the CoinGecko API every 30 seconds.
 
-The script "kafka_streaming.py" runs a Spark Structured Streaming job that takes data from the crypto-prices topic.
+* Extracts key attributes such as coin id, symbol, price, market_cap, volume, high_24h, low_24h, and timestamp.
 
-Each incoming Kafka message (JSON) is parsed and flattened, each coin’s details are extracted into individual rows.
+* Each batch is serialized as JSON and streamed into the Kafka topic crypto-prices acting as a real-time message queue.
 
-Spark then writes this data every 30 seconds into Parquet files (columnar storage) inside your local dataframes folder, while maintaining checkpoints for recovery.
+### Real-Time Stream Processing (Consumer Layer)
 
-Reading the newly stored Parquet data using Spark and filtering recent data calculations are performed regarding:
+* The kafka_streaming.py script initializes a Spark Structured Streaming job that consumes messages from the Kafka topic.
 
-  *Price change (1-min & 5-min) – measures short-term momentum.
+* Each JSON payload is parsed, flattened, and transformed into tabular structure using Spark SQL functions.
 
-  *SMA (Simple Moving Average) – smooths short-term fluctuations.
+* The processed data is written every 30 seconds into Parquet files for efficient columnar storage, with checkpointing enabled to ensure fault tolerance and recovery.
+  
+### Batch Analytics & Metric Computation
 
-  *EMA (Exponential Moving Average) – gives more weight to recent prices.
+* The analytics.py script reads the latest Parquet data and computes real-time analytical metrics such as:
 
-  *Volatility – measures how much the price is fluctuating.
+   * Price Change (1-min & 5-min) – short-term performance indicators.
 
-Based on these metrics, it finds the Top 5 gainers and Top 5 losers in the last 5 minutes and the results are written into PostgreSQL tables.
+   * SMA (Simple Moving Average) – smooths out short-term price noise.
 
-## Key Highlights
+   * EMA (Exponential Moving Average) – prioritizes recent market trends.
 
-Designed a fault-tolerant, recoverable streaming pipeline using Kafka and Spark checkpoints.
+   * Volatility – measures the degree of price fluctuation over time.
 
-Implemented real-time analytics on crypto price movements (SMA, EMA, volatility).
+* Each coin’s latest data point is identified and ranked globally to determine the Top 5 Gainers and Top 5 Losers over the last 5 minutes.
 
-Integrated with PostgreSQL for downstream reporting and visualization.
+### Data Storage & Integration
 
-Modular architecture allowing easy scaling and cloud deployment (GCP/AWS compatible).
+* The pipeline writes three tables into PostgreSQL:
 
-End-to-end automation ready via Airflow DAG or shell scripts.
+  * crypto_table → All calculated metrics.
+
+  * top_5_gainers → Highest 5 performers based on 5-min change.
+
+  * top_5_losers → Lowest 5 performers based on 5-min change.
+
+* Database schema and connection parameters are pre-configured for easy integration with BI tools such as Power BI or Looker Studio.
+
+### Orchestration & Execution
+
+* The entire pipeline can be orchestrated via Airflow DAG (crypto_dag.py) or run sequentially using command-line scripts.
