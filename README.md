@@ -13,7 +13,7 @@ CoinGecko API → Kafka Producer → Kafka Topic → PySpark Consumer → DataFr
 
 
 ## Step by Step procedure:
-The pipeline pulls live cryptocurrency prices from the CoinGecko API every 30 seconds.
+* The pipeline pulls live cryptocurrency prices from the CoinGecko API every 30 seconds.
 
 The Python script fetches popular coins (like Bitcoin, Ethereum, etc.) and filters only useful details like price, volume, market cap, highs/lows, and timestamp.
 
@@ -35,4 +35,16 @@ Reading the newly stored Parquet data using Spark and filtering recent data calc
 
   *Volatility – measures how much the price is fluctuating.
 
-Based on these metrics, it finds the Top 5 gainers and Top 5 losers in the last 5 minutes and the results are written into PostgreSQL tables
+Based on these metrics, it finds the Top 5 gainers and Top 5 losers in the last 5 minutes and the results are written into PostgreSQL tables.
+
+## Key Highlights
+
+Designed a fault-tolerant, recoverable streaming pipeline using Kafka and Spark checkpoints.
+
+Implemented real-time analytics on crypto price movements (SMA, EMA, volatility).
+
+Integrated with PostgreSQL for downstream reporting and visualization.
+
+Modular architecture allowing easy scaling and cloud deployment (GCP/AWS compatible).
+
+End-to-end automation ready via Airflow DAG or shell scripts.
