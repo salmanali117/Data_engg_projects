@@ -1,5 +1,4 @@
 # Data_engg_project Real Time Streaming
-Designing and Implementing pipelines using AWS platforms.
 
 ## Overview
 This project implements a real-time streaming ETL pipeline to ingest, process, and analyze live cryptocurrency market data using Apache Kafka, PySpark Structured Streaming, and PostgreSQL.
